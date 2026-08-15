@@ -2,7 +2,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-public sealed class JewelMatchTexturePostprocessor : AssetPostprocessor
+public sealed class GemzyTexturePostprocessor : AssetPostprocessor
 {
     private void OnPreprocessTexture()
     {
@@ -24,7 +24,7 @@ public sealed class JewelMatchTexturePostprocessor : AssetPostprocessor
     }
 }
 
-public static class JewelMatchAssetImporter
+public static class GemzyAssetImporter
 {
     private const string SourceRoot = "Assets/Pixel Art Gem Pack - Animated";
     private const string GemDestinationRoot = "Assets/Resources/GemAnimations";
@@ -40,12 +40,12 @@ public static class JewelMatchAssetImporter
         ("GEM 6/TURQUOISE", "Teal")
     };
 
-    [MenuItem("Jewel Match/Assets/Sync Pixel Gem Pack")]
+    [MenuItem("Gemzy/Assets/Sync Pixel Gem Pack")]
     public static void SyncPixelGemPack()
     {
         if (!AssetDatabase.IsValidFolder(SourceRoot))
         {
-            EditorUtility.DisplayDialog("Jewel Match", "Pixel Art Gem Pack - Animated was not found in Assets.", "OK");
+            EditorUtility.DisplayDialog("Gemzy", "Pixel Art Gem Pack - Animated was not found in Assets.", "OK");
             return;
         }
 
@@ -58,7 +58,7 @@ public static class JewelMatchAssetImporter
         AssetDatabase.Refresh();
         ForceReimport("Assets/Resources/GemAnimations");
         ForceReimport("Assets/Resources/Effects");
-        Debug.Log("Jewel Match asset sync complete.");
+        Debug.Log("Gemzy asset sync complete.");
     }
 
     private static void CopyPngFolder(string sourceFolder, string destinationFolder)

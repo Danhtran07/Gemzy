@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
-public sealed class JewelMatchSetupWindow : EditorWindow
+public sealed class GemzySetupWindow : EditorWindow
 {
     private const string SourceRoot = "Assets/Pixel Art Gem Pack - Animated";
     private const string GemAnimationRoot = "Assets/Resources/GemAnimations";
@@ -11,19 +11,19 @@ public sealed class JewelMatchSetupWindow : EditorWindow
     private const string ScenePath = "Assets/Scenes/Gemzy.unity";
     private const string PixelFontPath = "Assets/Thaleah_PixelFont/Materials/ThaleahFat_TTF.ttf";
 
-    private string windowsBuildPath = "Builds/Windows/JewelMatch.exe";
-    private string androidBuildPath = "Builds/Android/JewelMatch.apk";
+    private string windowsBuildPath = "Builds/Windows/Gemzy.exe";
+    private string androidBuildPath = "Builds/Android/Gemzy.apk";
     private Vector2 scroll;
 
-    [MenuItem("Jewel Match/Setup Window")]
+    [MenuItem("Gemzy/Setup Window")]
     public static void Open()
     {
-        JewelMatchSetupWindow window = GetWindow<JewelMatchSetupWindow>("Gemzy Setup");
+        GemzySetupWindow window = GetWindow<GemzySetupWindow>("Gemzy Setup");
         window.minSize = new Vector2(440f, 560f);
         window.Show();
     }
 
-    [MenuItem("Jewel Match/Hierarchy/Build Game Objects Into Scene")]
+    [MenuItem("Gemzy/Hierarchy/Build Game Objects Into Scene")]
     public static void BuildObjectsIntoHierarchy()
     {
         if (EditorSceneManager.GetActiveScene().path != ScenePath)
@@ -35,7 +35,6 @@ public sealed class JewelMatchSetupWindow : EditorWindow
         DestroyIfExists("Gemzy Game");
         DestroyIfExists("Board");
         DestroyIfExists("Gemzy HUD");
-        DestroyIfExists("Jewel Match HUD");
 
         GameObject root = new GameObject("Gemzy Game");
         GemzyGame game = root.AddComponent<GemzyGame>();
@@ -44,7 +43,7 @@ public sealed class JewelMatchSetupWindow : EditorWindow
         Selection.activeGameObject = root;
         EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
         EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene());
-        Debug.Log("Jewel Match objects were built into the hierarchy and saved to Gemzy.");
+        Debug.Log("Gemzy objects were built into the hierarchy and saved to Gemzy.");
     }
 
     private void OnGUI()
@@ -61,7 +60,7 @@ public sealed class JewelMatchSetupWindow : EditorWindow
     {
         GUILayout.Space(8f);
         EditorGUILayout.LabelField("Gemzy Setup", EditorStyles.boldLabel);
-        EditorGUILayout.HelpBox("Dung cua so nay de xem asset dang dung, tao lai hierarchy trong scene, sync asset moi, va build game.", MessageType.Info);
+        EditorGUILayout.HelpBox("Dung cua so nay de xem asset Gemzy, tao lai hierarchy trong scene, sync asset moi, va build game.", MessageType.Info);
     }
 
     private void DrawAssetStatus()
@@ -86,7 +85,7 @@ public sealed class JewelMatchSetupWindow : EditorWindow
         GUILayout.Space(6f);
         if (GUILayout.Button("Sync Pixel Gem Pack To Game"))
         {
-            JewelMatchAssetImporter.SyncPixelGemPack();
+            GemzyAssetImporter.SyncPixelGemPack();
         }
     }
 
@@ -120,18 +119,18 @@ public sealed class JewelMatchSetupWindow : EditorWindow
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Build Windows x64"))
         {
-            JewelMatchBuildTool.BuildWindowsAt(windowsBuildPath);
+            GemzyBuildTool.BuildWindowsAt(windowsBuildPath);
         }
 
         if (GUILayout.Button("Build Android APK"))
         {
-            JewelMatchBuildTool.BuildAndroidAt(androidBuildPath);
+            GemzyBuildTool.BuildAndroidAt(androidBuildPath);
         }
         EditorGUILayout.EndHorizontal();
 
         if (GUILayout.Button("Open Build Folder"))
         {
-            JewelMatchBuildTool.OpenBuildFolder();
+            GemzyBuildTool.OpenBuildFolder();
         }
     }
 

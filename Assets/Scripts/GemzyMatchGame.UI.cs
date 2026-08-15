@@ -315,7 +315,6 @@ public partial class GemzyGame
 
         ClearNamedGeneratedObject("Board");
         ClearNamedGeneratedObject("Gemzy HUD");
-        ClearNamedGeneratedObject("Jewel Match HUD");
     }
 
     private void ClearNamedGeneratedObject(string objectName)

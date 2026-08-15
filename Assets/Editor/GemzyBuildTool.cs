@@ -4,25 +4,25 @@ using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 
-public static class JewelMatchBuildTool
+public static class GemzyBuildTool
 {
     private const string ScenePath = "Assets/Scenes/Gemzy.unity";
-    private const string DefaultWindowsBuildPath = "Builds/Windows/JewelMatch.exe";
-    private const string DefaultAndroidBuildPath = "Builds/Android/JewelMatch.apk";
+    private const string DefaultWindowsBuildPath = "Builds/Windows/Gemzy.exe";
+    private const string DefaultAndroidBuildPath = "Builds/Android/Gemzy.apk";
 
-    [MenuItem("Jewel Match/Build/Windows x64")]
+    [MenuItem("Gemzy/Build/Windows x64")]
     public static void BuildWindowsMenu()
     {
         BuildWindows(DefaultWindowsBuildPath);
     }
 
-    [MenuItem("Jewel Match/Build/Android APK")]
+    [MenuItem("Gemzy/Build/Android APK")]
     public static void BuildAndroidMenu()
     {
         BuildAndroid(DefaultAndroidBuildPath);
     }
 
-    [MenuItem("Jewel Match/Build/Open Build Folder")]
+    [MenuItem("Gemzy/Build/Open Build Folder")]
     public static void OpenBuildFolder()
     {
         string absolutePath = Path.GetFullPath("Builds");
@@ -62,8 +62,8 @@ public static class JewelMatchBuildTool
 
     private static void Build(string outputPath, BuildTarget target, BuildOptions options)
     {
-        JewelMatchAssetImporter.SyncPixelGemPack();
-        JewelMatchSetupWindow.BuildObjectsIntoHierarchy();
+        GemzyAssetImporter.SyncPixelGemPack();
+        GemzySetupWindow.BuildObjectsIntoHierarchy();
         EnsureSceneInBuildSettings();
 
         string absoluteOutput = Path.GetFullPath(outputPath);
@@ -86,10 +86,10 @@ public static class JewelMatchBuildTool
 
         if (summary.result != BuildResult.Succeeded)
         {
-            throw new InvalidOperationException($"Jewel Match build failed: {summary.result}");
+            throw new InvalidOperationException($"Gemzy build failed: {summary.result}");
         }
 
-        Debug.Log($"Jewel Match build completed: {absoluteOutput} ({summary.totalSize} bytes)");
+        Debug.Log($"Gemzy build completed: {absoluteOutput} ({summary.totalSize} bytes)");
     }
 
     private static void EnsureSceneInBuildSettings()

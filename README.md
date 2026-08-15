@@ -2,6 +2,20 @@
 
 Gemzy is a lightweight pixel-art match-3 game built with Unity. Swap adjacent jewels, create chains of 3 or more, trigger combos, and reach the target score before running out of moves.
 
+## Media
+
+Add your gameplay screenshot here:
+
+```md
+![Gemzy gameplay screenshot](docs/media/gemzy-screenshot.png)
+```
+
+Add your gameplay demo video here:
+
+```md
+[![Gemzy gameplay demo](docs/media/gemzy-video-cover.png)](https://github.com/user-attachments/assets/your-video-id)
+```
+
 ## Gameplay
 
 - Match 3 or more jewels in a row or column.
@@ -36,9 +50,9 @@ Gemzy is a lightweight pixel-art match-3 game built with Unity. Swap adjacent je
 ```text
 Assets/
   Editor/
-    JewelMatchSetupWindow.cs
-    JewelMatchBuildTool.cs
-    JewelMatchAssetImporter.cs
+    GemzySetupWindow.cs
+    GemzyBuildTool.cs
+    GemzyAssetImporter.cs
   Resources/
     GemAnimations/
     Effects/Spark/
@@ -66,7 +80,7 @@ Assets/Scenes/Gemzy.unity
 3. Run the setup tool from the Unity menu:
 
 ```text
-Jewel Match > Setup Window > Build Game Objects Into Hierarchy
+Gemzy > Setup Window > Build Game Objects Into Hierarchy
 ```
 
 4. Press Play.
@@ -76,15 +90,15 @@ Jewel Match > Setup Window > Build Game Objects Into Hierarchy
 Use the Unity menu:
 
 ```text
-Jewel Match > Build > Windows x64
-Jewel Match > Build > Android APK
+Gemzy > Build > Windows x64
+Gemzy > Build > Android APK
 ```
 
 Default build outputs:
 
 ```text
-Builds/Windows/JewelMatch.exe
-Builds/Android/JewelMatch.apk
+Builds/Windows/Gemzy.exe
+Builds/Android/Gemzy.apk
 ```
 
 ## Controls

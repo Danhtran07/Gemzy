@@ -1,17 +1,17 @@
 param(
     [string]$UnityPath = "C:\Program Files\Unity\Hub\Editor\6000.4.6f1\Editor\Unity.exe",
-    [string]$Output = "Builds\Windows\JewelMatch.exe"
+    [string]$Output = "Builds\Windows\Gemzy.exe"
 )
 
 $ErrorActionPreference = "Stop"
 $ProjectPath = Resolve-Path "$PSScriptRoot\.."
-$LogPath = Join-Path $ProjectPath "Logs\JewelMatchBuildWindows.log"
+$LogPath = Join-Path $ProjectPath "Logs\GemzyBuildWindows.log"
 
 & $UnityPath `
     -batchmode `
     -quit `
     -projectPath $ProjectPath `
-    -executeMethod JewelMatchBuildTool.BuildWindowsFromCommandLine `
+    -executeMethod GemzyBuildTool.BuildWindowsFromCommandLine `
     -buildOutput $Output `
     -logFile $LogPath
 
