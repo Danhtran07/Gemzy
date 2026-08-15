@@ -6,11 +6,13 @@ Gemzy is a lightweight pixel-art match-3 game built with Unity. Swap adjacent je
 
 Gemzy screenshot:
 
-![Gemzy gameplay screenshot](docs/media/gemzy-screenshot.png)
+<img src="docs/media/gemzy-screenshot.png" alt="Gemzy gameplay screenshot" width="560" style="max-width: 100%; height: auto; display: block;" />
 
 Gemzy gameplay demo video:
 
-[![Gemzy gameplay demo](docs/media/gemzy-video-cover.png)](https://www.youtube.com/shorts/WEhOnYjLyiA)
+<a href="https://www.youtube.com/shorts/WEhOnYjLyiA" target="_blank" rel="noopener noreferrer">
+  <img src="https://img.youtube.com/vi/WEhOnYjLyiA/hqdefault.jpg" alt="Gemzy gameplay demo" width="560" style="max-width: 100%; height: auto; display: block; border-radius: 10px;" />
+</a>
 
 ## Gameplay
 
