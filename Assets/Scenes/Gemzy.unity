@@ -3563,7 +3563,15 @@ MonoBehaviour:
   movesText: {fileID: 2061216527}
   targetText: {fileID: 452370793}
   statusText: {fileID: 2099132757}
+  progressFill: {fileID: 0}
+  progressText: {fileID: 0}
+  feedbackRoot: {fileID: 0}
+  resultPanelGroup: {fileID: 0}
+  resultTitleText: {fileID: 0}
+  resultScoreText: {fileID: 0}
+  resultMovesText: {fileID: 0}
   restartButton: {fileID: 300823661}
+  playAgainButton: {fileID: 0}
 --- !u!4 &973844633
 Transform:
   m_ObjectHideFlags: 0
@@ -6510,11 +6518,11 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: 585188cdc4600544eb408bee749e4b3a, type: 3}
-    m_FontSize: 54
+    m_FontSize: 120
     m_FontStyle: 1
     m_BestFit: 1
-    m_MinSize: 16
-    m_MaxSize: 54
+    m_MinSize: 0
+    m_MaxSize: 120
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
