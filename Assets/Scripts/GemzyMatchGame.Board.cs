@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
-public partial class JewelMatchGame
+public partial class GemzyGame
 {
     private readonly Tile[,] tiles = new Tile[Width, Height];
     private readonly List<GameObject> effects = new List<GameObject>();
@@ -75,7 +76,7 @@ public partial class JewelMatchGame
 
     private void TrySelectTile()
     {
-        Vector3 world = gameCamera.ScreenToWorldPoint(Input.mousePosition);
+        Vector3 world = GetPointerWorldPosition();
         int x = Mathf.RoundToInt((world.x / CellSize) + (Width - 1) * 0.5f);
         int y = Mathf.RoundToInt(((world.y - BoardLift) / CellSize) + (Height - 1) * 0.5f);
 
@@ -144,7 +145,7 @@ public partial class JewelMatchGame
             foreach (Tile tile in matches)
             {
                 SpawnPop(tile.GameObject.transform.position, tile.Renderer.color);
-                DestroyObject(tile.GameObject);
+                SafeDestroy(tile.GameObject);
                 tiles[tile.X, tile.Y] = null;
             }
 
@@ -270,7 +271,7 @@ public partial class JewelMatchGame
             Type = type,
             GameObject = tileObject,
             Renderer = renderer,
-            Animation = tileObject.AddComponent<JewelMatchSpriteAnimation>()
+            Animation = tileObject.AddComponent<GemzySpriteAnimation>()
         };
         tile.Animation.Configure(renderer, animationFrames, 9f);
 
@@ -377,7 +378,7 @@ public partial class JewelMatchGame
 
         if (pop != null)
         {
-            DestroyObject(pop);
+            SafeDestroy(pop);
         }
     }
 
@@ -421,7 +422,7 @@ public partial class JewelMatchGame
                 {
                     if (tiles[x, y] != null)
                     {
-                        DestroyObject(tiles[x, y].GameObject);
+                        SafeDestroy(tiles[x, y].GameObject);
                         tiles[x, y] = null;
                     }
                 }
@@ -503,19 +504,35 @@ public partial class JewelMatchGame
         return horizontal >= 3 || vertical >= 3;
     }
 
+    private Vector3 GetPointerWorldPosition()
+    {
+        if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.isPressed)
+        {
+            Vector2 touchPosition = Touchscreen.current.primaryTouch.position.ReadValue();
+            return gameCamera.ScreenToWorldPoint(touchPosition);
+        }
+
+        if (Mouse.current != null)
+        {
+            return gameCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        }
+
+        return Vector3.zero;
+    }
+
     private bool PointerDownThisFrame()
     {
-        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
         {
-            return false;
+            return EventSystem.current == null || !EventSystem.current.IsPointerOverGameObject(0);
         }
 
-        if (Input.GetMouseButtonDown(0))
+        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
-            return true;
+            return EventSystem.current == null || !EventSystem.current.IsPointerOverGameObject();
         }
 
-        return Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began;
+        return false;
     }
 
     private bool AreAdjacent(Tile a, Tile b)
@@ -541,7 +558,7 @@ public partial class JewelMatchGame
             {
                 if (tiles[x, y] != null && tiles[x, y].GameObject != null)
                 {
-                    DestroyObject(tiles[x, y].GameObject);
+                    SafeDestroy(tiles[x, y].GameObject);
                 }
 
                 tiles[x, y] = null;
@@ -555,7 +572,7 @@ public partial class JewelMatchGame
         {
             if (effect != null)
             {
-                DestroyObject(effect);
+                SafeDestroy(effect);
             }
         }
 

@@ -7,5 +7,5 @@ internal sealed class Tile
     public int Type;
     public GameObject GameObject;
     public SpriteRenderer Renderer;
-    public JewelMatchSpriteAnimation Animation;
+    public GemzySpriteAnimation Animation;
 }

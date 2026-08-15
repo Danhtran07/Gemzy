@@ -1,21 +1,23 @@
 using System;
 using UnityEngine;
 
-public sealed class JewelMatchBootstrap
+[UnityEngine.Scripting.Preserve]
+public static class GemzyBootstrap
 {
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void StartGame()
     {
-        if (UnityEngine.Object.FindAnyObjectByType<JewelMatchGame>() != null)
+        if (UnityEngine.Object.FindAnyObjectByType<GemzyGame>() != null)
         {
             return;
         }
 
-        new GameObject("Jewel Match Game").AddComponent<JewelMatchGame>();
+        GameObject root = new GameObject("Gemzy Game");
+        root.AddComponent<GemzyGame>();
     }
 }
 
-public partial class JewelMatchGame : MonoBehaviour
+public partial class GemzyGame : MonoBehaviour
 {
     private const int Width = 8;
     private const int Height = 8;

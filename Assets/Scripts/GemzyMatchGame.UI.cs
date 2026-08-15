@@ -1,8 +1,9 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
-public partial class JewelMatchGame
+public partial class GemzyGame
 {
     private Camera gameCamera;
     private Transform boardRoot;
@@ -115,8 +116,9 @@ public partial class JewelMatchGame
         {
             GameObject eventSystem = new GameObject("EventSystem");
             eventSystem.transform.SetParent(transform);
-            eventSystem.AddComponent<EventSystem>();
-            eventSystem.AddComponent<StandaloneInputModule>();
+            EventSystem uiSystem = eventSystem.AddComponent<EventSystem>();
+            uiSystem.sendNavigationEvents = true;
+            eventSystem.AddComponent<InputSystemUIInputModule>();
         }
 
         GameObject canvasObject = new GameObject("Jewel Match HUD");
@@ -250,11 +252,11 @@ public partial class JewelMatchGame
     {
         for (int i = transform.childCount - 1; i >= 0; i--)
         {
-            DestroyObject(transform.GetChild(i).gameObject);
+            SafeDestroy(transform.GetChild(i).gameObject);
         }
 
         ClearNamedGeneratedObject("Board");
-        ClearNamedGeneratedObject("Jewel Match HUD");
+        ClearNamedGeneratedObject("Gemzy HUD");
     }
 
     private void ClearNamedGeneratedObject(string objectName)
@@ -262,11 +264,11 @@ public partial class JewelMatchGame
         GameObject generatedObject = GameObject.Find(objectName);
         if (generatedObject != null && generatedObject.transform.parent == null)
         {
-            DestroyObject(generatedObject);
+            SafeDestroy(generatedObject);
         }
     }
 
-    private void DestroyObject(Object target)
+    private void SafeDestroy(Object target)
     {
         if (target == null)
         {

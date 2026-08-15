@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public sealed class JewelMatchSpriteAnimation : MonoBehaviour
+public sealed class GemzySpriteAnimation : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private Sprite[] frames;

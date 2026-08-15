@@ -17,7 +17,7 @@ public sealed class JewelMatchSetupWindow : EditorWindow
     [MenuItem("Jewel Match/Setup Window")]
     public static void Open()
     {
-        JewelMatchSetupWindow window = GetWindow<JewelMatchSetupWindow>("Jewel Match Setup");
+        JewelMatchSetupWindow window = GetWindow<JewelMatchSetupWindow>("Gemzy Setup");
         window.minSize = new Vector2(440f, 560f);
         window.Show();
     }
@@ -30,13 +30,13 @@ public sealed class JewelMatchSetupWindow : EditorWindow
             EditorSceneManager.OpenScene(ScenePath);
         }
 
-        DestroyIfExists("Jewel Match Setup");
-        DestroyIfExists("Jewel Match Game");
+        DestroyIfExists("Gemzy Setup");
+        DestroyIfExists("Gemzy Game");
         DestroyIfExists("Board");
-        DestroyIfExists("Jewel Match HUD");
+        DestroyIfExists("Gemzy HUD");
 
-        GameObject root = new GameObject("Jewel Match Game");
-        JewelMatchGame game = root.AddComponent<JewelMatchGame>();
+        GameObject root = new GameObject("Gemzy Game");
+        GemzyGame game = root.AddComponent<GemzyGame>();
         game.BuildGameInEditor();
 
         Selection.activeGameObject = root;
@@ -58,7 +58,7 @@ public sealed class JewelMatchSetupWindow : EditorWindow
     private void DrawHeader()
     {
         GUILayout.Space(8f);
-        EditorGUILayout.LabelField("Jewel Match Setup", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("Gemzy Setup", EditorStyles.boldLabel);
         EditorGUILayout.HelpBox("Dung cua so nay de xem asset dang dung, tao lai hierarchy trong scene, sync asset moi, va build game.", MessageType.Info);
     }
 
