@@ -5,6 +5,14 @@ using UnityEngine.UI;
 
 public partial class GemzyGame
 {
+    private static readonly Color HudPanelColor = new Color(0.08f, 0.1f, 0.16f, 0.88f);
+    private static readonly Color HudPanelBorderColor = new Color(0.44f, 0.7f, 0.86f, 0.85f);
+    private static readonly Color GoldTextColor = new Color(1f, 0.86f, 0.36f, 1f);
+    private static readonly Color CyanTextColor = new Color(0.54f, 0.95f, 1f, 1f);
+    private static readonly Color ButtonBaseColor = new Color(0.12f, 0.46f, 0.64f, 0.98f);
+    private static readonly Color ButtonHoverColor = new Color(0.2f, 0.65f, 0.84f, 1f);
+    private static readonly Color ButtonPressColor = new Color(0.06f, 0.26f, 0.39f, 1f);
+
     private Camera gameCamera;
     [SerializeField] private Font pixelFont;
     [SerializeField] private Transform boardRoot;
@@ -14,7 +22,15 @@ public partial class GemzyGame
     [SerializeField] private Text movesText;
     [SerializeField] private Text targetText;
     [SerializeField] private Text statusText;
+    [SerializeField] private Image progressFill;
+    [SerializeField] private Text progressText;
+    [SerializeField] private RectTransform feedbackRoot;
+    [SerializeField] private CanvasGroup resultPanelGroup;
+    [SerializeField] private Text resultTitleText;
+    [SerializeField] private Text resultScoreText;
+    [SerializeField] private Text resultMovesText;
     [SerializeField] private Button restartButton;
+    [SerializeField] private Button playAgainButton;
     private int lastScreenWidth;
     private int lastScreenHeight;
     private Rect lastSafeArea;
@@ -117,7 +133,8 @@ public partial class GemzyGame
             restartButton = safeAreaRoot.GetComponentInChildren<Button>();
         }
 
-        if (boardRoot == null || tileRoot == null || scoreText == null || movesText == null || targetText == null || statusText == null)
+        if (boardRoot == null || tileRoot == null || scoreText == null || movesText == null || targetText == null ||
+            statusText == null || progressFill == null || resultPanelGroup == null || feedbackRoot == null)
         {
             ClearGeneratedObjects();
             CreateScene();
@@ -126,6 +143,7 @@ public partial class GemzyGame
         {
             EnsureEventSystem();
             EnsureRestartButtonListener();
+            EnsurePlayAgainButtonListener();
             ApplySafeArea();
         }
     }
@@ -172,26 +190,32 @@ public partial class GemzyGame
         safeAreaRoot.offsetMax = Vector2.zero;
         ApplySafeArea();
 
-        Text title = CreateText(safeAreaRoot, "JEWEL MATCH", 54, FontStyle.Bold, TextAnchor.MiddleCenter);
-        SetRect(title.rectTransform, new Vector2(0.5f, 1f), new Vector2(0f, -60f), new Vector2(680f, 90f));
-        title.color = new Color(1f, 0.92f, 0.62f);
+        Text title = CreateText(safeAreaRoot, "GEMZY", 68, FontStyle.Bold, TextAnchor.MiddleCenter);
+        SetRect(title.rectTransform, new Vector2(0.5f, 1f), new Vector2(0f, -54f), new Vector2(720f, 90f));
+        title.color = GoldTextColor;
+        AddTextShadow(title, new Color(0.08f, 0.04f, 0.02f, 0.85f), new Vector2(4f, -4f));
 
-        scoreText = CreateText(safeAreaRoot, "", 34, FontStyle.Bold, TextAnchor.MiddleLeft);
-        SetRect(scoreText.rectTransform, new Vector2(0f, 1f), new Vector2(42f, -150f), new Vector2(340f, 70f));
+        RectTransform statsRoot = CreateUiObject("Top Stats", safeAreaRoot).AddComponent<RectTransform>();
+        SetRect(statsRoot, new Vector2(0.5f, 1f), new Vector2(0f, -150f), new Vector2(980f, 120f));
 
-        movesText = CreateText(safeAreaRoot, "", 34, FontStyle.Bold, TextAnchor.MiddleRight);
-        SetRect(movesText.rectTransform, new Vector2(1f, 1f), new Vector2(-42f, -150f), new Vector2(340f, 70f));
+        scoreText = CreateStatPanel(statsRoot, "Score", new Vector2(0f, 0.5f), new Vector2(165f, 0f), TextAnchor.MiddleLeft);
+        targetText = CreateStatPanel(statsRoot, "Target", new Vector2(0.5f, 0.5f), Vector2.zero, TextAnchor.MiddleCenter);
+        movesText = CreateStatPanel(statsRoot, "Moves", new Vector2(1f, 0.5f), new Vector2(-165f, 0f), TextAnchor.MiddleRight);
 
-        targetText = CreateText(safeAreaRoot, "", 28, FontStyle.Normal, TextAnchor.MiddleCenter);
-        SetRect(targetText.rectTransform, new Vector2(0.5f, 0f), new Vector2(0f, 108f), new Vector2(680f, 70f));
+        CreateProgressBar();
+
+        feedbackRoot = CreateUiObject("Score Feedback", safeAreaRoot).AddComponent<RectTransform>();
+        SetRect(feedbackRoot, new Vector2(0.5f, 0.5f), new Vector2(0f, 250f), new Vector2(720f, 260f));
 
         statusText = CreateText(safeAreaRoot, "", 34, FontStyle.Bold, TextAnchor.MiddleCenter);
-        SetRect(statusText.rectTransform, new Vector2(0.5f, 0f), new Vector2(0f, 56f), new Vector2(850f, 90f));
-        statusText.color = new Color(0.67f, 0.93f, 1f);
+        SetRect(statusText.rectTransform, new Vector2(0.5f, 0f), new Vector2(0f, 92f), new Vector2(860f, 80f));
+        statusText.color = CyanTextColor;
+        AddTextShadow(statusText, new Color(0f, 0f, 0f, 0.8f), new Vector2(3f, -3f));
 
         restartButton = CreateButton(safeAreaRoot, "Restart");
-        SetRect(restartButton.GetComponent<RectTransform>(), new Vector2(0.5f, 0f), new Vector2(0f, 178f), new Vector2(260f, 72f));
+        SetRect(restartButton.GetComponent<RectTransform>(), new Vector2(0.5f, 0f), new Vector2(0f, 182f), new Vector2(290f, 78f));
         EnsureRestartButtonListener();
+        CreateResultPanel();
     }
 
     private void EnsureEventSystem()
@@ -219,6 +243,17 @@ public partial class GemzyGame
         restartButton.onClick.AddListener(RestartGame);
     }
 
+    private void EnsurePlayAgainButtonListener()
+    {
+        if (playAgainButton == null)
+        {
+            return;
+        }
+
+        playAgainButton.onClick.RemoveListener(RestartGame);
+        playAgainButton.onClick.AddListener(RestartGame);
+    }
+
     private void ApplySafeArea()
     {
         if (safeAreaRoot == null || Screen.width <= 0 || Screen.height <= 0)
@@ -242,10 +277,117 @@ public partial class GemzyGame
 
     private void UpdateHud(string status)
     {
-        scoreText.text = "Score " + score;
-        movesText.text = "Moves " + movesLeft;
-        targetText.text = "Target " + TargetScore;
-        statusText.text = status;
+        if (scoreText != null)
+        {
+            scoreText.text = score.ToString();
+        }
+
+        if (movesText != null)
+        {
+            movesText.text = movesLeft.ToString();
+        }
+
+        if (targetText != null)
+        {
+            targetText.text = TargetScore.ToString();
+        }
+
+        if (statusText != null)
+        {
+            statusText.text = status;
+        }
+
+        float progress = Mathf.Clamp01((float)score / TargetScore);
+        if (progressFill != null)
+        {
+            progressFill.fillAmount = progress;
+        }
+
+        if (progressText != null)
+        {
+            progressText.text = Mathf.RoundToInt(progress * 100f) + "%";
+        }
+    }
+
+    private void ShowResultPanel(bool won)
+    {
+        if (resultPanelGroup == null)
+        {
+            return;
+        }
+
+        resultPanelGroup.alpha = 1f;
+        resultPanelGroup.interactable = true;
+        resultPanelGroup.blocksRaycasts = true;
+
+        if (resultTitleText != null)
+        {
+            resultTitleText.text = won ? "YOU WIN!" : "GAME OVER";
+            resultTitleText.color = won ? GoldTextColor : new Color(1f, 0.47f, 0.48f, 1f);
+        }
+
+        if (resultScoreText != null)
+        {
+            resultScoreText.text = "Score  " + score + " / " + TargetScore;
+        }
+
+        if (resultMovesText != null)
+        {
+            resultMovesText.text = "Moves Left  " + movesLeft;
+        }
+    }
+
+    private void HideResultPanel()
+    {
+        if (resultPanelGroup == null)
+        {
+            return;
+        }
+
+        resultPanelGroup.alpha = 0f;
+        resultPanelGroup.interactable = false;
+        resultPanelGroup.blocksRaycasts = false;
+    }
+
+    private void ShowScoreFeedback(int amount, int chain)
+    {
+        if (feedbackRoot == null)
+        {
+            return;
+        }
+
+        string label = chain > 1 ? "COMBO x" + chain + "  +" + amount : "+" + amount;
+        Text feedback = CreateText(feedbackRoot, label, chain > 1 ? 52 : 42, FontStyle.Bold, TextAnchor.MiddleCenter);
+        feedback.color = chain > 1 ? GoldTextColor : CyanTextColor;
+        AddTextShadow(feedback, new Color(0f, 0f, 0f, 0.9f), new Vector2(4f, -4f));
+        SetRect(feedback.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(Random.Range(-120f, 120f), Random.Range(-10f, 80f)), new Vector2(560f, 90f));
+        StartCoroutine(AnimateScoreFeedback(feedback));
+    }
+
+    private System.Collections.IEnumerator AnimateScoreFeedback(Text feedback)
+    {
+        RectTransform rect = feedback.rectTransform;
+        CanvasGroup group = feedback.gameObject.AddComponent<CanvasGroup>();
+        Vector2 start = rect.anchoredPosition;
+        Vector2 end = start + new Vector2(0f, 96f);
+        float duration = 0.82f;
+        float timer = 0f;
+
+        while (timer < duration && feedback != null)
+        {
+            timer += Time.deltaTime;
+            float t = Mathf.Clamp01(timer / duration);
+            float eased = 1f - Mathf.Pow(1f - t, 3f);
+            rect.anchoredPosition = Vector2.Lerp(start, end, eased);
+            rect.localScale = Vector3.one * Mathf.Lerp(0.7f, 1.12f, Mathf.Sin(t * Mathf.PI));
+            group.alpha = 1f - Mathf.Clamp01((t - 0.62f) / 0.38f);
+            yield return null;
+        }
+
+        if (feedback != null)
+        {
+            SafeDestroy(feedback.gameObject);
+        }
     }
 
     private void SetSelected(Tile tile)
@@ -259,8 +401,7 @@ public partial class GemzyGame
 
     private Text CreateText(Transform parent, string content, int size, FontStyle style, TextAnchor alignment)
     {
-        GameObject obj = new GameObject("Text");
-        obj.transform.SetParent(parent, false);
+        GameObject obj = CreateUiObject("Text", parent);
         Text text = obj.AddComponent<Text>();
         text.text = content;
         text.font = pixelFont != null ? pixelFont : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
@@ -274,18 +415,63 @@ public partial class GemzyGame
         return text;
     }
 
+    private Text CreateStatPanel(Transform parent, string label, Vector2 anchor, Vector2 position, TextAnchor valueAlignment)
+    {
+        GameObject panel = CreatePixelPanel(label + " Panel", parent, HudPanelColor, HudPanelBorderColor);
+        RectTransform panelRect = panel.GetComponent<RectTransform>();
+        SetRect(panelRect, anchor, position, new Vector2(300f, 102f));
+
+        Text labelText = CreateText(panel.transform, label.ToUpperInvariant(), 22, FontStyle.Bold, TextAnchor.MiddleCenter);
+        SetRect(labelText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0f, -24f), new Vector2(240f, 32f));
+        labelText.color = new Color(0.65f, 0.82f, 0.9f, 1f);
+
+        Text valueText = CreateText(panel.transform, "", 42, FontStyle.Bold, valueAlignment);
+        SetRect(valueText.rectTransform, new Vector2(0.5f, 0f), new Vector2(0f, 30f), new Vector2(230f, 58f));
+        valueText.color = Color.white;
+        AddTextShadow(valueText, new Color(0f, 0f, 0f, 0.75f), new Vector2(3f, -3f));
+        return valueText;
+    }
+
+    private void CreateProgressBar()
+    {
+        GameObject frame = CreatePixelPanel("Progress Bar", safeAreaRoot, new Color(0.05f, 0.07f, 0.11f, 0.92f), HudPanelBorderColor);
+        RectTransform frameRect = frame.GetComponent<RectTransform>();
+        SetRect(frameRect, new Vector2(0.5f, 1f), new Vector2(0f, -246f), new Vector2(860f, 54f));
+
+        GameObject fillObject = CreateUiObject("Progress Fill", frame.transform);
+        Image fillImage = fillObject.AddComponent<Image>();
+        fillImage.sprite = squareSprite;
+        fillImage.type = Image.Type.Filled;
+        fillImage.fillMethod = Image.FillMethod.Horizontal;
+        fillImage.fillOrigin = (int)Image.OriginHorizontal.Left;
+        fillImage.color = new Color(0.2f, 0.78f, 0.53f, 1f);
+        progressFill = fillImage;
+        RectTransform fillRect = fillObject.GetComponent<RectTransform>();
+        fillRect.anchorMin = Vector2.zero;
+        fillRect.anchorMax = Vector2.one;
+        fillRect.offsetMin = new Vector2(8f, 8f);
+        fillRect.offsetMax = new Vector2(-8f, -8f);
+
+        progressText = CreateText(frame.transform, "", 24, FontStyle.Bold, TextAnchor.MiddleCenter);
+        SetRect(progressText.rectTransform, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(240f, 42f));
+        progressText.color = Color.white;
+        AddTextShadow(progressText, new Color(0f, 0f, 0f, 0.85f), new Vector2(2f, -2f));
+    }
+
     private Button CreateButton(Transform parent, string label)
     {
-        GameObject obj = new GameObject(label + " Button");
-        obj.transform.SetParent(parent, false);
+        GameObject obj = CreatePixelPanel(label + " Button", parent, ButtonBaseColor, new Color(0.62f, 0.9f, 1f, 0.95f));
 
-        Image image = obj.AddComponent<Image>();
-        image.color = new Color(0.17f, 0.45f, 0.65f, 0.94f);
+        Image image = obj.GetComponent<Image>();
+        image.sprite = squareSprite;
+        image.color = ButtonBaseColor;
 
         Button button = obj.AddComponent<Button>();
+        button.transition = Selectable.Transition.None;
         ColorBlock colors = button.colors;
-        colors.highlightedColor = new Color(0.24f, 0.6f, 0.82f, 1f);
-        colors.pressedColor = new Color(0.11f, 0.31f, 0.48f, 1f);
+        colors.normalColor = Color.white;
+        colors.highlightedColor = Color.white;
+        colors.pressedColor = Color.white;
         button.colors = colors;
 
         Text text = CreateText(obj.transform, label, 30, FontStyle.Bold, TextAnchor.MiddleCenter);
@@ -294,7 +480,76 @@ public partial class GemzyGame
         textRect.anchorMax = Vector2.one;
         textRect.offsetMin = Vector2.zero;
         textRect.offsetMax = Vector2.zero;
+        text.color = Color.white;
+        AddTextShadow(text, new Color(0f, 0f, 0f, 0.75f), new Vector2(2f, -2f));
+
+        GemzyPixelButtonAnimator animator = obj.AddComponent<GemzyPixelButtonAnimator>();
+        animator.Configure(image, ButtonBaseColor, ButtonHoverColor, ButtonPressColor);
         return button;
+    }
+
+    private void CreateResultPanel()
+    {
+        GameObject dimmer = CreateUiObject("Result Panel", safeAreaRoot);
+        Image dimmerImage = dimmer.AddComponent<Image>();
+        dimmerImage.sprite = squareSprite;
+        dimmerImage.color = new Color(0.02f, 0.03f, 0.05f, 0.68f);
+        RectTransform dimmerRect = dimmer.GetComponent<RectTransform>();
+        dimmerRect.anchorMin = Vector2.zero;
+        dimmerRect.anchorMax = Vector2.one;
+        dimmerRect.offsetMin = Vector2.zero;
+        dimmerRect.offsetMax = Vector2.zero;
+
+        resultPanelGroup = dimmer.AddComponent<CanvasGroup>();
+
+        GameObject panel = CreatePixelPanel("Result Card", dimmer.transform, new Color(0.07f, 0.1f, 0.16f, 0.98f), GoldTextColor);
+        RectTransform panelRect = panel.GetComponent<RectTransform>();
+        SetRect(panelRect, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(720f, 520f));
+
+        resultTitleText = CreateText(panel.transform, "", 62, FontStyle.Bold, TextAnchor.MiddleCenter);
+        SetRect(resultTitleText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0f, -88f), new Vector2(620f, 92f));
+        AddTextShadow(resultTitleText, new Color(0f, 0f, 0f, 0.9f), new Vector2(4f, -4f));
+
+        resultScoreText = CreateText(panel.transform, "", 34, FontStyle.Bold, TextAnchor.MiddleCenter);
+        SetRect(resultScoreText.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0f, 52f), new Vector2(560f, 62f));
+        resultScoreText.color = Color.white;
+
+        resultMovesText = CreateText(panel.transform, "", 30, FontStyle.Bold, TextAnchor.MiddleCenter);
+        SetRect(resultMovesText.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0f, -14f), new Vector2(560f, 58f));
+        resultMovesText.color = CyanTextColor;
+
+        playAgainButton = CreateButton(panel.transform, "Play Again");
+        SetRect(playAgainButton.GetComponent<RectTransform>(), new Vector2(0.5f, 0f), new Vector2(0f, 96f), new Vector2(340f, 84f));
+        EnsurePlayAgainButtonListener();
+        HideResultPanel();
+    }
+
+    private GameObject CreatePixelPanel(string name, Transform parent, Color fillColor, Color borderColor)
+    {
+        GameObject obj = CreateUiObject(name, parent);
+        Image image = obj.AddComponent<Image>();
+        image.sprite = squareSprite;
+        image.color = fillColor;
+
+        Outline outline = obj.AddComponent<Outline>();
+        outline.effectColor = borderColor;
+        outline.effectDistance = new Vector2(4f, -4f);
+        return obj;
+    }
+
+    private GameObject CreateUiObject(string name, Transform parent)
+    {
+        GameObject obj = new GameObject(name);
+        obj.transform.SetParent(parent, false);
+        obj.AddComponent<RectTransform>();
+        return obj;
+    }
+
+    private void AddTextShadow(Text text, Color color, Vector2 distance)
+    {
+        Shadow shadow = text.gameObject.AddComponent<Shadow>();
+        shadow.effectColor = color;
+        shadow.effectDistance = distance;
     }
 
     private void SetRect(RectTransform rect, Vector2 anchor, Vector2 anchoredPosition, Vector2 size)
@@ -341,5 +596,76 @@ public partial class GemzyGame
         {
             DestroyImmediate(target);
         }
+    }
+}
+
+public sealed class GemzyPixelButtonAnimator : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
+{
+    private Image targetImage;
+    private Color normalColor;
+    private Color hoverColor;
+    private Color pressColor;
+    private Color desiredColor;
+    private RectTransform rectTransform;
+    private Vector3 desiredScale = Vector3.one;
+
+    public void Configure(Image image, Color normal, Color hover, Color pressed)
+    {
+        targetImage = image;
+        normalColor = normal;
+        hoverColor = hover;
+        pressColor = pressed;
+        desiredColor = normalColor;
+        rectTransform = GetComponent<RectTransform>();
+    }
+
+    private void Awake()
+    {
+        rectTransform = GetComponent<RectTransform>();
+        if (targetImage == null)
+        {
+            targetImage = GetComponent<Image>();
+            normalColor = targetImage != null ? targetImage.color : Color.white;
+            hoverColor = normalColor;
+            pressColor = normalColor;
+            desiredColor = normalColor;
+        }
+    }
+
+    private void Update()
+    {
+        if (targetImage != null)
+        {
+            targetImage.color = Color.Lerp(targetImage.color, desiredColor, Time.unscaledDeltaTime * 18f);
+        }
+
+        if (rectTransform != null)
+        {
+            rectTransform.localScale = Vector3.Lerp(rectTransform.localScale, desiredScale, Time.unscaledDeltaTime * 18f);
+        }
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        desiredColor = hoverColor;
+        desiredScale = Vector3.one * 1.04f;
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        desiredColor = normalColor;
+        desiredScale = Vector3.one;
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        desiredColor = pressColor;
+        desiredScale = Vector3.one * 0.94f;
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        desiredColor = hoverColor;
+        desiredScale = Vector3.one * 1.04f;
     }
 }

@@ -29,6 +29,7 @@ public partial class GemzyGame
         selected = null;
         busy = false;
         finished = false;
+        HideResultPanel();
 
         do
         {
@@ -139,8 +140,10 @@ public partial class GemzyGame
         int chain = 1;
         while (matches.Count > 0)
         {
-            score += matches.Count * 10 * chain;
+            int points = matches.Count * 10 * chain;
+            score += points;
             UpdateHud(chain > 1 ? "Combo x" + chain : "Nice match");
+            ShowScoreFeedback(points, chain);
 
             foreach (Tile tile in matches)
             {
@@ -388,6 +391,7 @@ public partial class GemzyGame
         {
             finished = true;
             UpdateHud("You cleared the jewel target!");
+            ShowResultPanel(true);
             return false;
         }
 
@@ -395,6 +399,7 @@ public partial class GemzyGame
         {
             finished = true;
             UpdateHud("Out of moves - try again");
+            ShowResultPanel(false);
             return false;
         }
 
