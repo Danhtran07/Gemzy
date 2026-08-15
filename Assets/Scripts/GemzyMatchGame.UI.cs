@@ -195,7 +195,7 @@ public partial class GemzyGame
         title.color = GoldTextColor;
         AddTextShadow(title, new Color(0.08f, 0.04f, 0.02f, 0.85f), new Vector2(4f, -4f));
 
-        RectTransform statsRoot = CreateUiObject("Top Stats", safeAreaRoot).AddComponent<RectTransform>();
+        RectTransform statsRoot = CreateUiObject("Top Stats", safeAreaRoot).GetComponent<RectTransform>();
         SetRect(statsRoot, new Vector2(0.5f, 1f), new Vector2(0f, -150f), new Vector2(980f, 120f));
 
         scoreText = CreateStatPanel(statsRoot, "Score", new Vector2(0f, 0.5f), new Vector2(165f, 0f), TextAnchor.MiddleLeft);
@@ -204,7 +204,7 @@ public partial class GemzyGame
 
         CreateProgressBar();
 
-        feedbackRoot = CreateUiObject("Score Feedback", safeAreaRoot).AddComponent<RectTransform>();
+        feedbackRoot = CreateUiObject("Score Feedback", safeAreaRoot).GetComponent<RectTransform>();
         SetRect(feedbackRoot, new Vector2(0.5f, 0.5f), new Vector2(0f, 250f), new Vector2(720f, 260f));
 
         statusText = CreateText(safeAreaRoot, "", 34, FontStyle.Bold, TextAnchor.MiddleCenter);
@@ -541,7 +541,11 @@ public partial class GemzyGame
     {
         GameObject obj = new GameObject(name);
         obj.transform.SetParent(parent, false);
-        obj.AddComponent<RectTransform>();
+        RectTransform rect = obj.GetComponent<RectTransform>();
+        if (rect == null)
+        {
+            rect = obj.AddComponent<RectTransform>();
+        }
         return obj;
     }
 
@@ -554,6 +558,12 @@ public partial class GemzyGame
 
     private void SetRect(RectTransform rect, Vector2 anchor, Vector2 anchoredPosition, Vector2 size)
     {
+        if (rect == null)
+        {
+            Debug.LogWarning("SetRect called with a null RectTransform.");
+            return;
+        }
+
         rect.anchorMin = anchor;
         rect.anchorMax = anchor;
         rect.pivot = anchor;
