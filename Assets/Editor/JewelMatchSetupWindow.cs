@@ -8,7 +8,8 @@ public sealed class JewelMatchSetupWindow : EditorWindow
     private const string SourceRoot = "Assets/Pixel Art Gem Pack - Animated";
     private const string GemAnimationRoot = "Assets/Resources/GemAnimations";
     private const string SparkRoot = "Assets/Resources/Effects/Spark";
-    private const string ScenePath = "Assets/Scenes/SampleScene.unity";
+    private const string ScenePath = "Assets/Scenes/Gemzy.unity";
+    private const string PixelFontPath = "Assets/Thaleah_PixelFont/Materials/ThaleahFat_TTF.ttf";
 
     private string windowsBuildPath = "Builds/Windows/JewelMatch.exe";
     private string androidBuildPath = "Builds/Android/JewelMatch.apk";
@@ -34,15 +35,16 @@ public sealed class JewelMatchSetupWindow : EditorWindow
         DestroyIfExists("Gemzy Game");
         DestroyIfExists("Board");
         DestroyIfExists("Gemzy HUD");
+        DestroyIfExists("Jewel Match HUD");
 
         GameObject root = new GameObject("Gemzy Game");
         GemzyGame game = root.AddComponent<GemzyGame>();
-        game.BuildGameInEditor();
+        game.SetupGameInEditor(AssetDatabase.LoadAssetAtPath<Font>(PixelFontPath));
 
         Selection.activeGameObject = root;
         EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
         EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene());
-        Debug.Log("Jewel Match objects were built into the hierarchy and saved to SampleScene.");
+        Debug.Log("Jewel Match objects were built into the hierarchy and saved to Gemzy.");
     }
 
     private void OnGUI()
@@ -70,6 +72,7 @@ public sealed class JewelMatchSetupWindow : EditorWindow
         DrawStatusRow("Source pack", SourceRoot, AssetDatabase.IsValidFolder(SourceRoot));
         DrawStatusRow("Runtime gem animations", GemAnimationRoot, AssetDatabase.IsValidFolder(GemAnimationRoot));
         DrawStatusRow("Runtime spark effect", SparkRoot, AssetDatabase.IsValidFolder(SparkRoot));
+        DrawStatusRow("Pixel font", PixelFontPath, AssetDatabase.LoadAssetAtPath<Font>(PixelFontPath) != null);
 
         GUILayout.Space(4f);
         DrawFolderCount("Blue", $"{GemAnimationRoot}/Blue");
@@ -93,14 +96,14 @@ public sealed class JewelMatchSetupWindow : EditorWindow
         EditorGUILayout.LabelField("Scene / Hierarchy", EditorStyles.boldLabel);
         DrawStatusRow("Main scene", ScenePath, File.Exists(ScenePath));
 
-        EditorGUILayout.HelpBox("Nut nay build object that len Hierarchy va save vao SampleScene: Board, Tiles, Gem, HUD, EventSystem, va runtime component.", MessageType.None);
+        EditorGUILayout.HelpBox("Nut nay build object that len Hierarchy va save vao Gemzy scene: Board, Tiles, HUD, EventSystem, runtime component, va font pixel.", MessageType.None);
 
         if (GUILayout.Button("Build Game Objects Into Hierarchy"))
         {
             BuildObjectsIntoHierarchy();
         }
 
-        if (GUILayout.Button("Open SampleScene"))
+        if (GUILayout.Button("Open Gemzy Scene"))
         {
             EditorSceneManager.OpenScene(ScenePath);
         }

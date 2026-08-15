@@ -552,11 +552,19 @@ public partial class GemzyGame
 
     private void ClearTiles()
     {
+        if (tileRoot != null)
+        {
+            for (int i = tileRoot.childCount - 1; i >= 0; i--)
+            {
+                SafeDestroy(tileRoot.GetChild(i).gameObject);
+            }
+        }
+
         for (int y = 0; y < Height; y++)
         {
             for (int x = 0; x < Width; x++)
             {
-                if (tiles[x, y] != null && tiles[x, y].GameObject != null)
+                if (tileRoot == null && tiles[x, y] != null && tiles[x, y].GameObject != null)
                 {
                     SafeDestroy(tiles[x, y].GameObject);
                 }

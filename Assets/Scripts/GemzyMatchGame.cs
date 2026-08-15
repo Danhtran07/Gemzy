@@ -1,21 +1,4 @@
-using System;
 using UnityEngine;
-
-[UnityEngine.Scripting.Preserve]
-public static class GemzyBootstrap
-{
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    private static void StartGame()
-    {
-        if (UnityEngine.Object.FindAnyObjectByType<GemzyGame>() != null)
-        {
-            return;
-        }
-
-        GameObject root = new GameObject("Gemzy Game");
-        root.AddComponent<GemzyGame>();
-    }
-}
 
 public partial class GemzyGame : MonoBehaviour
 {
@@ -36,20 +19,27 @@ public partial class GemzyGame : MonoBehaviour
     }
 
 #if UNITY_EDITOR
-    public void BuildGameInEditor()
+    public void SetupGameInEditor(Font setupFont)
     {
-        BuildGame();
+        pixelFont = setupFont;
+        ConfigureMobileRuntime();
+        UnityEngine.Random.InitState(System.Environment.TickCount);
+        LoadAssets();
+        ConfigureCamera();
+        ClearGeneratedObjects();
+        CreateScene();
+        score = 0;
+        movesLeft = MoveLimit;
+        UpdateHud("Swap adjacent jewels to match 3+");
     }
 #endif
 
     private void BuildGame()
     {
         ConfigureMobileRuntime();
-        UnityEngine.Random.InitState(DateTime.Now.Millisecond);
         LoadAssets();
         ConfigureCamera();
-        ClearGeneratedObjects();
-        CreateScene();
+        EnsureScene();
         RestartGame();
     }
 

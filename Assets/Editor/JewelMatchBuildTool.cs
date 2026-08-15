@@ -6,7 +6,7 @@ using UnityEngine;
 
 public static class JewelMatchBuildTool
 {
-    private const string ScenePath = "Assets/Scenes/SampleScene.unity";
+    private const string ScenePath = "Assets/Scenes/Gemzy.unity";
     private const string DefaultWindowsBuildPath = "Builds/Windows/JewelMatch.exe";
     private const string DefaultAndroidBuildPath = "Builds/Android/JewelMatch.apk";
 

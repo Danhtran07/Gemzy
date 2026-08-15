@@ -6,13 +6,15 @@ using UnityEngine.UI;
 public partial class GemzyGame
 {
     private Camera gameCamera;
-    private Transform boardRoot;
-    private Transform tileRoot;
-    private Text scoreText;
-    private Text movesText;
-    private Text targetText;
-    private Text statusText;
-    private RectTransform safeAreaRoot;
+    [SerializeField] private Font pixelFont;
+    [SerializeField] private Transform boardRoot;
+    [SerializeField] private Transform tileRoot;
+    [SerializeField] private RectTransform safeAreaRoot;
+    [SerializeField] private Text scoreText;
+    [SerializeField] private Text movesText;
+    [SerializeField] private Text targetText;
+    [SerializeField] private Text statusText;
+    [SerializeField] private Button restartButton;
     private int lastScreenWidth;
     private int lastScreenHeight;
     private Rect lastSafeArea;
@@ -90,6 +92,44 @@ public partial class GemzyGame
         CreateHud();
     }
 
+    private void EnsureScene()
+    {
+        if (boardRoot == null)
+        {
+            Transform existingBoard = transform.Find("Board");
+            boardRoot = existingBoard != null ? existingBoard : GameObject.Find("Board")?.transform;
+        }
+
+        if (tileRoot == null && boardRoot != null)
+        {
+            tileRoot = boardRoot.Find("Tiles");
+        }
+
+        if (safeAreaRoot == null)
+        {
+            Transform existingHud = transform.Find("Gemzy HUD");
+            Transform existingSafeArea = existingHud != null ? existingHud.Find("Safe Area") : null;
+            safeAreaRoot = existingSafeArea != null ? existingSafeArea.GetComponent<RectTransform>() : null;
+        }
+
+        if (restartButton == null && safeAreaRoot != null)
+        {
+            restartButton = safeAreaRoot.GetComponentInChildren<Button>();
+        }
+
+        if (boardRoot == null || tileRoot == null || scoreText == null || movesText == null || targetText == null || statusText == null)
+        {
+            ClearGeneratedObjects();
+            CreateScene();
+        }
+        else
+        {
+            EnsureEventSystem();
+            EnsureRestartButtonListener();
+            ApplySafeArea();
+        }
+    }
+
     private void CreateBoardBackground()
     {
         GameObject backdrop = CreateSpriteObject("Board Backdrop", boardRoot, new Vector3(0f, BoardLift, 0.25f), squareSprite);
@@ -112,16 +152,9 @@ public partial class GemzyGame
 
     private void CreateHud()
     {
-        if (FindAnyObjectByType<EventSystem>() == null)
-        {
-            GameObject eventSystem = new GameObject("EventSystem");
-            eventSystem.transform.SetParent(transform);
-            EventSystem uiSystem = eventSystem.AddComponent<EventSystem>();
-            uiSystem.sendNavigationEvents = true;
-            eventSystem.AddComponent<InputSystemUIInputModule>();
-        }
+        EnsureEventSystem();
 
-        GameObject canvasObject = new GameObject("Jewel Match HUD");
+        GameObject canvasObject = new GameObject("Gemzy HUD");
         canvasObject.transform.SetParent(transform);
         Canvas canvas = canvasObject.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
@@ -156,8 +189,33 @@ public partial class GemzyGame
         SetRect(statusText.rectTransform, new Vector2(0.5f, 0f), new Vector2(0f, 56f), new Vector2(850f, 90f));
         statusText.color = new Color(0.67f, 0.93f, 1f);
 
-        Button restartButton = CreateButton(safeAreaRoot, "Restart");
+        restartButton = CreateButton(safeAreaRoot, "Restart");
         SetRect(restartButton.GetComponent<RectTransform>(), new Vector2(0.5f, 0f), new Vector2(0f, 178f), new Vector2(260f, 72f));
+        EnsureRestartButtonListener();
+    }
+
+    private void EnsureEventSystem()
+    {
+        if (FindAnyObjectByType<EventSystem>() != null)
+        {
+            return;
+        }
+
+        GameObject eventSystem = new GameObject("EventSystem");
+        eventSystem.transform.SetParent(transform);
+        EventSystem uiSystem = eventSystem.AddComponent<EventSystem>();
+        uiSystem.sendNavigationEvents = true;
+        eventSystem.AddComponent<InputSystemUIInputModule>();
+    }
+
+    private void EnsureRestartButtonListener()
+    {
+        if (restartButton == null)
+        {
+            return;
+        }
+
+        restartButton.onClick.RemoveListener(RestartGame);
         restartButton.onClick.AddListener(RestartGame);
     }
 
@@ -205,7 +263,7 @@ public partial class GemzyGame
         obj.transform.SetParent(parent, false);
         Text text = obj.AddComponent<Text>();
         text.text = content;
-        text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        text.font = pixelFont != null ? pixelFont : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         text.fontSize = size;
         text.fontStyle = style;
         text.alignment = alignment;
@@ -218,7 +276,7 @@ public partial class GemzyGame
 
     private Button CreateButton(Transform parent, string label)
     {
-        GameObject obj = new GameObject("Button");
+        GameObject obj = new GameObject(label + " Button");
         obj.transform.SetParent(parent, false);
 
         Image image = obj.AddComponent<Image>();
@@ -257,6 +315,7 @@ public partial class GemzyGame
 
         ClearNamedGeneratedObject("Board");
         ClearNamedGeneratedObject("Gemzy HUD");
+        ClearNamedGeneratedObject("Jewel Match HUD");
     }
 
     private void ClearNamedGeneratedObject(string objectName)
